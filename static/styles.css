@@ -1,0 +1,908 @@
+/* ════════════════════════════════════════════════════════════════════
+   NEKYIA — The Catalogue of Souls
+   A dark, oceanic, gold-accented aesthetic after Homer's Odyssey.
+   ════════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* The wine-dark palette */
+  --abyss:        #06080f;
+  --deep:         #0a0e1a;
+  --sea:          #111729;
+  --sea-2:        #1a2238;
+  --shore:        #2a3552;
+  --foam:         #e8e4d8;
+  --foam-dim:     #b8b3a3;
+  --foam-faint:   #6b6a63;
+
+  --gold:         #c9a961;
+  --gold-bright:  #e6c987;
+  --gold-dim:     #8a7440;
+
+  --heart:        #c8323a;
+  --breath:       #7fb8c4;
+  --cancer:       #9b6db5;
+  --metabolic:    #d4a13a;
+  --pestilence:   #6fae5a;
+  --violence:     #d96b3c;
+  --dawn:         #8aa0b8;
+
+  --serif:        'Cormorant Garamond', 'EB Garamond', Georgia, serif;
+  --serif-alt:    'EB Garamond', Georgia, serif;
+  --reading:      'Spectral', Georgia, serif;
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  background: var(--abyss);
+  color: var(--foam);
+  font-family: var(--reading);
+  font-weight: 300;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+}
+
+/* ░░░ The ever-present wine-dark sea, drawn on canvas ░░░ */
+#sea-canvas {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 0;
+  pointer-events: none;
+}
+.vignette {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse at 50% 40%, transparent 0%, transparent 45%, rgba(6,8,15,0.55) 100%),
+    radial-gradient(ellipse at 50% 100%, rgba(6,8,15,0.6) 0%, transparent 50%);
+}
+
+main { position: relative; z-index: 2; }
+
+/* ░░░ Typography ░░░ */
+h1, h2, h3 { font-family: var(--serif); font-weight: 400; margin: 0; }
+
+.ms {
+  font-style: italic;
+  color: var(--foam-dim);
+  font-size: 0.85em;
+  font-family: var(--serif-alt);
+}
+
+/* ░░░ Voyage nav ░░░ */
+.voyage-nav {
+  position: fixed;
+  top: 50%;
+  right: 1.4rem;
+  transform: translateY(-50%);
+  z-index: 50;
+  font-family: var(--serif);
+}
+.voyage-nav ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+.voyage-nav a {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  text-decoration: none;
+  color: var(--foam-faint);
+  font-size: 0.78rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  transition: color 0.4s ease, transform 0.3s ease;
+}
+.voyage-nav .rn {
+  font-size: 0.95rem;
+  color: var(--gold-dim);
+  width: 1.6rem;
+  text-align: right;
+  font-style: italic;
+  transition: color 0.4s ease;
+}
+.voyage-nav .bk {
+  opacity: 0;
+  transform: translateX(-6px);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+  white-space: nowrap;
+}
+.voyage-nav a:hover,
+.voyage-nav a.is-active {
+  color: var(--gold-bright);
+}
+.voyage-nav a:hover .rn,
+.voyage-nav a.is-active .rn { color: var(--gold-bright); }
+.voyage-nav a:hover .bk,
+.voyage-nav a.is-active .bk { opacity: 1; transform: translateX(0); }
+
+@media (max-width: 760px) {
+  .voyage-nav { display: none; }
+}
+
+/* ░░░ Book sections ░░░ */
+.book {
+  min-height: 100vh;
+  padding: 8rem 2rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+.book-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+.book-num {
+  display: block;
+  font-family: var(--serif);
+  font-style: italic;
+  color: var(--gold);
+  letter-spacing: 0.35em;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  margin-bottom: 0.8rem;
+}
+.book-header h2 {
+  font-size: clamp(2.4rem, 5vw, 4rem);
+  color: var(--foam);
+  letter-spacing: 0.02em;
+}
+.book-ms {
+  font-family: var(--serif-alt);
+  font-style: italic;
+  color: var(--foam-dim);
+  font-size: 1.1rem;
+  margin-top: 0.4rem;
+}
+.passage {
+  max-width: 640px;
+  text-align: center;
+  font-size: 1.18rem;
+  color: var(--foam-dim);
+  margin: 0 auto 3rem;
+  line-height: 1.8;
+}
+.passage em { color: var(--gold-bright); font-style: italic; }
+
+/* ═════════════════════════════════════════════════════════════════
+   BOOK I — INVOCATION
+   ═════════════════════════════════════════════════════════════════ */
+.book--invocation {
+  text-align: center;
+}
+.invocation-inner { max-width: 900px; }
+.prelude {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 1.3rem;
+  color: var(--gold);
+  letter-spacing: 0.05em;
+  margin-bottom: 2rem;
+  opacity: 0;
+  animation: fadeUp 1.6s 0.3s forwards ease;
+}
+.title {
+  font-size: clamp(5rem, 14vw, 11rem);
+  font-weight: 300;
+  letter-spacing: 0.25em;
+  color: var(--foam);
+  margin: 0;
+  text-indent: 0.25em;
+  line-height: 1;
+  opacity: 0;
+  animation: fadeUp 2s 0.6s forwards ease;
+  background: linear-gradient(180deg, var(--foam) 0%, var(--gold-bright) 60%, var(--gold-dim) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.subtitle {
+  font-family: var(--serif);
+  font-size: 1.6rem;
+  color: var(--foam-dim);
+  letter-spacing: 0.18em;
+  margin: 1.2rem 0 0.2rem;
+  opacity: 0;
+  animation: fadeUp 1.6s 1.2s forwards ease;
+}
+.subtitle-ms {
+  font-family: var(--serif-alt);
+  font-style: italic;
+  color: var(--foam-faint);
+  font-size: 1rem;
+  letter-spacing: 0.1em;
+  margin-top: 0;
+  opacity: 0;
+  animation: fadeUp 1.6s 1.5s forwards ease;
+}
+.invocation-stats {
+  margin: 4rem 0 3rem;
+  opacity: 0;
+  animation: fadeUp 1.8s 1.9s forwards ease;
+}
+.stat-block { text-align: center; }
+.stat-number {
+  font-family: var(--serif);
+  font-size: clamp(3rem, 8vw, 6rem);
+  font-weight: 300;
+  color: var(--gold-bright);
+  line-height: 1;
+  letter-spacing: 0.02em;
+  text-shadow: 0 0 40px rgba(201,169,97,0.25);
+}
+.stat-label {
+  font-family: var(--serif);
+  font-size: 1.1rem;
+  color: var(--foam-dim);
+  letter-spacing: 0.08em;
+  margin-top: 0.8rem;
+  text-transform: lowercase;
+  font-variant: small-caps;
+  letter-spacing: 0.18em;
+}
+.stat-label .ms { font-variant: normal; text-transform: none; }
+
+.lead {
+  max-width: 640px;
+  margin: 0 auto 1.4rem;
+  font-size: 1.22rem;
+  color: var(--foam);
+  line-height: 1.9;
+  opacity: 0;
+  animation: fadeUp 1.8s 2.3s forwards ease;
+}
+.lead em { color: var(--gold-bright); }
+.lead-ms {
+  max-width: 560px;
+  margin: 0 auto;
+  font-family: var(--serif-alt);
+  font-style: italic;
+  color: var(--foam-faint);
+  font-size: 1rem;
+  opacity: 0;
+  animation: fadeUp 1.8s 2.6s forwards ease;
+}
+.scroll-cue {
+  margin-top: 4rem;
+  font-family: var(--serif);
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  color: var(--gold-dim);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  opacity: 0;
+  animation: fadeUp 1.6s 3s forwards ease;
+}
+.scroll-cue .line {
+  display: inline-block;
+  width: 40px;
+  height: 1px;
+  background: var(--gold-dim);
+}
+.scroll-cue .arrow {
+  animation: bob 2.2s infinite ease-in-out;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes bob {
+  0%, 100% { transform: translateY(0); opacity: 0.7; }
+  50%      { transform: translateY(4px); opacity: 1; }
+}
+
+/* ═════════════════════════════════════════════════════════════════
+   BOOK V — SEA OF SOULS
+   ═════════════════════════════════════════════════════════════════ */
+.sea-stage {
+  width: 100%;
+  max-width: 1100px;
+  height: 60vh;
+  min-height: 380px;
+  position: relative;
+  border: 1px solid rgba(201,169,97,0.15);
+  border-radius: 2px;
+  background: linear-gradient(180deg, rgba(10,14,26,0.2), rgba(6,8,15,0.5));
+  overflow: hidden;
+}
+#sea-particles {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.sea-legend {
+  position: absolute;
+  bottom: 1rem;
+  left: 1rem;
+  right: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem 1.4rem;
+  font-family: var(--serif);
+  font-size: 0.85rem;
+  color: var(--foam-dim);
+  letter-spacing: 0.05em;
+  z-index: 2;
+  padding: 0.8rem 1rem;
+  background: rgba(6,8,15,0.55);
+  border: 1px solid rgba(201,169,97,0.12);
+  border-radius: 2px;
+  backdrop-filter: blur(2px);
+}
+.sea-legend div { display: flex; align-items: center; gap: 0.5rem; }
+.sea-legend .dot {
+  width: 9px; height: 9px; border-radius: 50%;
+  box-shadow: 0 0 8px currentColor;
+}
+
+/* ═════════════════════════════════════════════════════════════════
+   BOOK XI (a) — THE FATES
+   ═════════════════════════════════════════════════════════════════ */
+.fates-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.4rem;
+  max-width: 1200px;
+  width: 100%;
+}
+.fate-card {
+  position: relative;
+  padding: 2rem 1.8rem 1.8rem;
+  background: linear-gradient(160deg, rgba(26,34,56,0.55), rgba(10,14,26,0.7));
+  border: 1px solid rgba(201,169,97,0.15);
+  border-top: 2px solid var(--fate-color, var(--gold));
+  border-radius: 2px;
+  cursor: default;
+  transition: transform 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease;
+  overflow: hidden;
+}
+.fate-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 80% 0%, var(--fate-color, transparent), transparent 60%);
+  opacity: 0.08;
+  pointer-events: none;
+}
+.fate-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--fate-color);
+  box-shadow: 0 14px 40px rgba(0,0,0,0.5), 0 0 24px rgba(201,169,97,0.08);
+}
+.fate-glyph {
+  font-size: 2.4rem;
+  color: var(--fate-color);
+  line-height: 1;
+  margin-bottom: 0.6rem;
+  text-shadow: 0 0 20px var(--fate-color);
+}
+.fate-label {
+  font-family: var(--serif);
+  font-size: 1.5rem;
+  color: var(--foam);
+  margin: 0 0 0.2rem;
+}
+.fate-ms {
+  font-family: var(--serif-alt);
+  font-style: italic;
+  color: var(--foam-faint);
+  font-size: 0.95rem;
+  margin: 0 0 1rem;
+}
+.fate-count {
+  font-family: var(--serif);
+  font-size: 2.2rem;
+  color: var(--fate-color);
+  font-weight: 300;
+  line-height: 1;
+}
+.fate-pct {
+  font-family: var(--serif-alt);
+  color: var(--foam-dim);
+  font-size: 0.95rem;
+  margin: 0.2rem 0 1.2rem;
+}
+.fate-odyssey {
+  font-family: var(--serif);
+  font-style: italic;
+  color: var(--foam-dim);
+  font-size: 1rem;
+  line-height: 1.7;
+  border-top: 1px solid rgba(201,169,97,0.12);
+  padding-top: 1rem;
+  margin: 0 0 1rem;
+}
+.fate-detail {
+  font-size: 0.88rem;
+  color: var(--foam-faint);
+  line-height: 1.6;
+}
+.fate-detail .label {
+  font-family: var(--serif);
+  color: var(--gold-dim);
+  font-size: 0.78rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  display: block;
+  margin-top: 0.6rem;
+  margin-bottom: 0.2rem;
+}
+.fate-detail ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.fate-detail li {
+  padding: 0.15rem 0;
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.fate-detail li .c { color: var(--fate-color); font-family: var(--serif); }
+
+/* ═════════════════════════════════════════════════════════════════
+   BOOK IX — VOYAGE OF YEARS
+   ═════════════════════════════════════════════════════════════════ */
+.voyage-stage {
+  width: 100%;
+  max-width: 1100px;
+  display: grid;
+  grid-template-columns: 1fr 280px;
+  gap: 2rem;
+  align-items: stretch;
+}
+@media (max-width: 860px) {
+  .voyage-stage { grid-template-columns: 1fr; }
+}
+#voyage-svg {
+  width: 100%;
+  height: 360px;
+  background: linear-gradient(180deg, rgba(10,14,26,0.3), rgba(6,8,15,0.5));
+  border: 1px solid rgba(201,169,97,0.15);
+  border-radius: 2px;
+}
+.voyage-aside {
+  padding: 1.6rem;
+  background: rgba(10,14,26,0.5);
+  border: 1px solid rgba(201,169,97,0.12);
+  border-left: 2px solid var(--gold-dim);
+  border-radius: 2px;
+  font-family: var(--serif);
+}
+.voyage-aside h3 {
+  font-size: 1.3rem;
+  color: var(--gold-bright);
+  margin-bottom: 1rem;
+  font-weight: 400;
+}
+.voyage-aside .vo-note {
+  font-family: var(--reading);
+  font-size: 0.96rem;
+  color: var(--foam-dim);
+  line-height: 1.7;
+  margin: 0.8rem 0;
+  padding-top: 0.8rem;
+  border-top: 1px solid rgba(201,169,97,0.1);
+}
+.voyage-aside .vo-note:first-of-type { border-top: none; padding-top: 0; }
+.voyage-aside .vo-big {
+  font-family: var(--serif);
+  color: var(--gold-bright);
+  font-size: 1.6rem;
+}
+.voyage-legend {
+  margin-top: 1.6rem;
+  display: flex;
+  gap: 2rem;
+  font-family: var(--serif);
+  color: var(--foam-dim);
+  font-size: 0.95rem;
+}
+.voyage-legend em { color: var(--foam-faint); font-style: italic; }
+.swatch {
+  display: inline-block;
+  width: 14px; height: 4px;
+  margin-right: 0.5rem;
+  vertical-align: middle;
+  border-radius: 1px;
+}
+
+/* SVG chart text */
+.voyage-axis text, .voyage-grid text {
+  fill: var(--foam-faint);
+  font-family: var(--serif);
+  font-size: 11px;
+}
+.voyage-axis line, .voyage-grid line {
+  stroke: rgba(232,228,216,0.08);
+}
+.voyage-area-male { fill: rgba(90,127,160,0.35); stroke: #5a7fa0; stroke-width: 1.4; }
+.voyage-area-female { fill: rgba(196,131,155,0.35); stroke: #c4839b; stroke-width: 1.4; }
+.voyage-peak-line {
+  stroke: var(--gold-bright);
+  stroke-width: 1;
+  stroke-dasharray: 4 4;
+}
+.voyage-peak-label {
+  fill: var(--gold-bright);
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 12px;
+}
+
+/* ═════════════════════════════════════════════════════════════════
+   BOOK III — ARCHIPELAGO
+   ═════════════════════════════════════════════════════════════════ */
+.archi-stage {
+  width: 100%;
+  max-width: 1200px;
+}
+.regions-river {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  justify-content: center;
+  margin-bottom: 2.5rem;
+}
+.region-pill {
+  padding: 0.7rem 1.3rem;
+  background: rgba(10,14,26,0.6);
+  border: 1px solid rgba(201,169,97,0.18);
+  border-radius: 40px;
+  font-family: var(--serif);
+  color: var(--foam);
+  display: flex;
+  align-items: baseline;
+  gap: 0.8rem;
+  transition: border-color 0.3s ease, background 0.3s ease;
+}
+.region-pill:hover {
+  border-color: var(--gold);
+  background: rgba(26,34,56,0.7);
+}
+.region-pill .rp-en { font-size: 1.05rem; }
+.region-pill .rp-ms {
+  font-family: var(--serif-alt);
+  font-style: italic;
+  color: var(--foam-faint);
+  font-size: 0.85rem;
+}
+.region-pill .rp-count {
+  color: var(--gold-bright);
+  font-family: var(--serif);
+  font-size: 1rem;
+}
+.states-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1rem;
+}
+.state-card {
+  padding: 1.3rem 1.3rem 1rem;
+  background: linear-gradient(160deg, rgba(26,34,56,0.45), rgba(10,14,26,0.6));
+  border: 1px solid rgba(201,169,97,0.12);
+  border-radius: 2px;
+  transition: border-color 0.3s ease, transform 0.3s ease;
+  position: relative;
+}
+.state-card:hover {
+  border-color: var(--gold-dim);
+  transform: translateY(-2px);
+}
+.state-card .sc-bar {
+  position: absolute;
+  top: 0; left: 0; bottom: 0;
+  width: var(--bar, 0%);
+  background: linear-gradient(180deg, rgba(201,169,97,0.08), rgba(201,169,97,0.02));
+  pointer-events: none;
+}
+.state-card .sc-inner { position: relative; }
+.state-card .sc-name {
+  font-family: var(--serif);
+  font-size: 1.2rem;
+  color: var(--foam);
+}
+.state-card .sc-region {
+  font-family: var(--serif-alt);
+  font-style: italic;
+  color: var(--gold-dim);
+  font-size: 0.8rem;
+  letter-spacing: 0.05em;
+}
+.state-card .sc-count {
+  font-family: var(--serif);
+  font-size: 1.5rem;
+  color: var(--gold-bright);
+  margin: 0.4rem 0 0.2rem;
+}
+.state-card .sc-pct {
+  font-size: 0.8rem;
+  color: var(--foam-faint);
+}
+.state-card .sc-districts {
+  margin-top: 0.8rem;
+  padding-top: 0.7rem;
+  border-top: 1px solid rgba(201,169,97,0.1);
+  font-size: 0.78rem;
+  color: var(--foam-faint);
+  line-height: 1.5;
+}
+.state-card .sc-districts .d {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.1rem 0;
+}
+.state-card .sc-districts .d .n { color: var(--foam-dim); }
+
+/* ═════════════════════════════════════════════════════════════════
+   BOOK XI (b) — THE DESCENT (interactive)
+   ═════════════════════════════════════════════════════════════════ */
+.descent-form {
+  width: 100%;
+  max-width: 1100px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.2rem;
+  padding: 2rem;
+  background: rgba(10,14,26,0.55);
+  border: 1px solid rgba(201,169,97,0.15);
+  border-radius: 2px;
+  margin-bottom: 3rem;
+}
+.field {
+  display: flex;
+  flex-direction: column;
+}
+.field label {
+  font-family: var(--serif);
+  color: var(--gold-bright);
+  font-size: 0.95rem;
+  letter-spacing: 0.06em;
+  margin-bottom: 0.5rem;
+}
+.field label .ms { font-size: 0.85em; }
+.field select,
+.field input {
+  background: rgba(6,8,15,0.7);
+  border: 1px solid rgba(201,169,97,0.2);
+  color: var(--foam);
+  padding: 0.7rem 0.8rem;
+  font-family: var(--reading);
+  font-size: 0.95rem;
+  border-radius: 2px;
+  transition: border-color 0.3s ease;
+}
+.field select:focus,
+.field input:focus {
+  outline: none;
+  border-color: var(--gold);
+}
+.field--age { grid-column: span 1; }
+.age-pair {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+.age-pair input { width: 100%; }
+.age-pair span { color: var(--foam-faint); font-style: italic; font-family: var(--serif); font-size: 0.9rem; }
+.field--submit {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: center;
+  margin-top: 0.6rem;
+}
+#summon-btn {
+  background: linear-gradient(180deg, rgba(201,169,97,0.2), rgba(201,169,97,0.08));
+  border: 1px solid var(--gold);
+  color: var(--gold-bright);
+  padding: 0.9rem 2.4rem;
+  font-family: var(--serif);
+  font-size: 1.1rem;
+  letter-spacing: 0.12em;
+  cursor: pointer;
+  border-radius: 2px;
+  transition: all 0.3s ease;
+}
+#summon-btn:hover {
+  background: linear-gradient(180deg, rgba(201,169,97,0.35), rgba(201,169,97,0.15));
+  box-shadow: 0 0 24px rgba(201,169,97,0.25);
+  color: var(--foam);
+}
+#summon-btn .arrow { display: inline-block; margin-left: 0.4rem; }
+#summon-btn.loading { opacity: 0.6; pointer-events: none; }
+
+/* The well where souls rise */
+.souls-well {
+  width: 100%;
+  max-width: 1100px;
+  min-height: 200px;
+  padding: 2rem;
+  background: linear-gradient(180deg, rgba(6,8,15,0.4), rgba(6,8,15,0.7));
+  border: 1px solid rgba(201,169,97,0.12);
+  border-radius: 2px;
+}
+.souls-empty {
+  text-align: center;
+  font-family: var(--serif);
+  font-style: italic;
+  color: var(--foam-faint);
+  margin: 2rem auto;
+}
+.souls-meta {
+  font-family: var(--serif);
+  color: var(--gold-dim);
+  font-size: 0.85rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+.souls-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.2rem;
+}
+.soul-card {
+  position: relative;
+  padding: 1.8rem 1.6rem 1.4rem;
+  background: rgba(10,14,26,0.6);
+  border: 1px solid rgba(201,169,97,0.12);
+  border-left: 3px solid var(--soul-color, var(--gold));
+  border-radius: 2px;
+  opacity: 0;
+  transform: translateY(12px);
+  animation: soulRise 0.8s forwards ease;
+}
+@keyframes soulRise {
+  to { opacity: 1; transform: translateY(0); }
+}
+.soul-glyph {
+  font-size: 1.8rem;
+  color: var(--soul-color);
+  line-height: 1;
+  margin-bottom: 0.6rem;
+  text-shadow: 0 0 16px var(--soul-color);
+}
+.soul-line {
+  font-family: var(--serif);
+  font-size: 1.1rem;
+  color: var(--foam);
+  margin: 0.2rem 0;
+  line-height: 1.5;
+}
+.soul-line .k {
+  font-family: var(--serif-alt);
+  font-style: italic;
+  color: var(--foam-faint);
+  font-size: 0.88em;
+  margin-right: 0.3rem;
+}
+.soul-line .v { color: var(--gold-bright); }
+.soul-line.cause {
+  font-style: italic;
+  color: var(--soul-color);
+  margin-top: 0.6rem;
+  padding-top: 0.6rem;
+  border-top: 1px solid rgba(201,169,97,0.1);
+}
+.soul-epitaph {
+  font-family: var(--serif);
+  font-style: italic;
+  color: var(--foam-dim);
+  font-size: 0.92rem;
+  margin-top: 0.7rem;
+  line-height: 1.5;
+}
+
+/* ═════════════════════════════════════════════════════════════════
+   BOOK XXIII — THE RETURN
+   ═════════════════════════════════════════════════════════════════ */
+.book--return { background: linear-gradient(180deg, transparent, rgba(6,8,15,0.6)); }
+.return-inner { max-width: 720px; text-align: center; }
+.closing {
+  font-size: 1.2rem;
+  color: var(--foam);
+  line-height: 1.9;
+  margin: 2rem 0;
+}
+.closing-ms {
+  font-family: var(--serif-alt);
+  font-style: italic;
+  color: var(--foam-faint);
+  margin: 1rem 0 3rem;
+}
+.homer {
+  margin: 3rem 0;
+  padding: 1.6rem 2rem;
+  border-top: 1px solid rgba(201,169,97,0.25);
+  border-bottom: 1px solid rgba(201,169,97,0.25);
+}
+.homer p {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 1.4rem;
+  color: var(--gold-bright);
+  margin: 0 0 0.6rem;
+}
+.homer cite {
+  font-family: var(--serif);
+  color: var(--foam-faint);
+  font-size: 0.95rem;
+  font-style: italic;
+}
+.dedication {
+  font-family: var(--serif);
+  font-size: 1.1rem;
+  color: var(--foam-dim);
+  letter-spacing: 0.04em;
+}
+.dedication span { color: var(--gold-bright); }
+.source-note {
+  font-size: 0.82rem;
+  color: var(--foam-faint);
+  font-style: italic;
+  margin-top: 2rem;
+}
+.back-to-top {
+  margin-top: 3rem;
+}
+.back-to-top a {
+  font-family: var(--serif);
+  color: var(--gold);
+  text-decoration: none;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  border-bottom: 1px solid transparent;
+  padding-bottom: 2px;
+  transition: border-color 0.3s ease, color 0.3s ease;
+}
+.back-to-top a:hover {
+  color: var(--gold-bright);
+  border-bottom-color: var(--gold);
+}
+
+/* ═════════════════════════════════════════════════════════════════
+   Colophon
+   ═════════════════════════════════════════════════════════════════ */
+.colophon {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  padding: 3rem 2rem 4rem;
+  font-family: var(--serif);
+  font-style: italic;
+  color: var(--foam-faint);
+  font-size: 0.9rem;
+  letter-spacing: 0.05em;
+}
+
+/* ░░░ Reduced motion ░░░ */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  html { scroll-behavior: auto; }
+}

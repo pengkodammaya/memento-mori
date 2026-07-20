@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NEKYIA — The Catalogue of Souls</title>
+<meta name="description" content="A voyage through the causes of death among Malaysians, told in the manner of Homer's Odyssey.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Spectral:wght@200;300;400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+
+<!-- ░░░ The wine-dark sea, drawn behind everything ░░░ -->
+<canvas id="sea-canvas" aria-hidden="true"></canvas>
+<div class="vignette" aria-hidden="true"></div>
+
+<!-- ░░░ Progress / book indicator ░░░ -->
+<nav class="voyage-nav" aria-label="Books of the voyage">
+  <ol>
+    <li><a href="#book-i" data-book="1"><span class="rn">I</span><span class="bk">Invocation</span></a></li>
+    <li><a href="#book-v" data-book="5"><span class="rn">V</span><span class="bk">Sea of Souls</span></a></li>
+    <li><a href="#book-xi-a" data-book="11a"><span class="rn">XI</span><span class="bk">The Fates</span></a></li>
+    <li><a href="#book-ix" data-book="9"><span class="rn">IX</span><span class="bk">Voyage of Years</span></a></li>
+    <li><a href="#book-iii" data-book="3"><span class="rn">III</span><span class="bk">Archipelago</span></a></li>
+    <li><a href="#book-xi-b" data-book="11b"><span class="rn">XI</span><span class="bk">The Descent</span></a></li>
+    <li><a href="#book-xxiii" data-book="23"><span class="rn">XXIII</span><span class="bk">The Return</span></a></li>
+  </ol>
+</nav>
+
+<main>
+
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<!-- BOOK I — INVOCATION                                                  -->
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<section id="book-i" class="book book--invocation">
+  <div class="invocation-inner">
+    <p class="prelude">Sing in me, Muse, and through me tell the story</p>
+    <h1 class="title">NEKYIA</h1>
+    <p class="subtitle">The Catalogue of Souls</p>
+    <p class="subtitle-ms">Katalog Jiwa</p>
+    <div class="invocation-stats">
+      <div class="stat-block">
+        <div class="stat-number" data-count="{{ overview.total }}">0</div>
+        <div class="stat-label">souls charted on this voyage<br><span class="ms">jiwa dalam pelayaran ini</span></div>
+      </div>
+    </div>
+    <p class="lead">
+      Of the men and women of <em>Malaysia</em>, this is the manner of their going —
+      not the howling of the war-dead, nor the long-robed heroes of Troy, but
+      the quiet, enormous toll of ordinary lives. Heart. Breath. The slow cell.
+      The sudden road. The invisible army that crossed every sea.
+    </p>
+    <p class="lead-ms">
+      Ini adalah kisah bagaimana penduduk <em>Malaysia</em> pergi —
+      bukan jeritan pahlawan, tetapi karma yang sunyi yang merangkumi kehidupan biasa.
+    </p>
+    <p class="scroll-cue">
+      <span class="line"></span>
+      Descend <span class="arrow">▾</span>
+      <span class="line"></span>
+    </p>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<!-- BOOK V — THE SEA OF SOULS                                           -->
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<section id="book-v" class="book book--sea">
+  <header class="book-header">
+    <span class="book-num">Book V</span>
+    <h2>The Sea of Souls</h2>
+    <p class="book-ms">Lautan Jiwa</p>
+  </header>
+  <p class="passage">
+    He launched his craft upon the wine-dark sea. Each light upon the water is a
+    soul — one for every hundred who made the crossing. Watch how they gather,
+    how they drift. There are <span class="hiccup" id="sea-total">—</span> of them,
+    and not one is anonymous to the counting.
+  </p>
+  <div class="sea-stage" id="sea-stage">
+    <div class="sea-legend">
+      <div><span class="dot" style="background:#c8323a"></span> Heart</div>
+      <div><span class="dot" style="background:#7fb8c4"></span> Breath</div>
+      <div><span class="dot" style="background:#9b6db5"></span> The Long Shadow</div>
+      <div><span class="dot" style="background:#6fae5a"></span> Pestilence</div>
+      <div><span class="dot" style="background:#d96b3c"></span> Violence</div>
+      <div><span class="dot" style="background:#d4a13a"></span> Rebellion</div>
+      <div><span class="dot" style="background:#8aa0b8"></span> The Dawn</div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<!-- BOOK XI (a) — THE FATES THAT CLAIM US                                -->
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<section id="book-xi-a" class="book book--fates">
+  <header class="book-header">
+    <span class="book-num">Book XI</span>
+    <h2>The Fates That Claim Us</h2>
+    <p class="book-ms">Takdir yang Menjemput</p>
+  </header>
+  <p class="passage">
+    When he descended, each shade told him the manner of its ending. So too
+    here: the catalogues resolve into seven fates — seven ways the body fails
+    the soul. Hover, and hear a single one speak.
+  </p>
+  <div class="fates-grid" id="fates-grid"></div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<!-- BOOK IX — THE VOYAGE OF YEARS                                        -->
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<section id="book-ix" class="book book--voyage">
+  <header class="book-header">
+    <span class="book-num">Book IX</span>
+    <h2>The Voyage of Years</h2>
+    <p class="book-ms">Pelayaran Tahun-tahun</p>
+  </header>
+  <p class="passage">
+    Not all who set out reach the same harbour. Some are taken at the dawn of
+    their lives; most, after long voyaging, drop anchor in their seventh or
+    eighth decade. Below, every year of life — and the dark bend where the
+    young are lost.
+  </p>
+  <div class="voyage-stage">
+    <svg id="voyage-svg" viewBox="0 0 1000 360" preserveAspectRatio="none" aria-label="Deaths by age"></svg>
+    <div class="voyage-aside" id="voyage-aside"></div>
+  </div>
+  <div class="voyage-legend">
+    <span><span class="swatch" style="background:#5a7fa0"></span> Men <em>(Lelaki)</em></span>
+    <span><span class="swatch" style="background:#c4839b"></span> Women <em>(Perempuan)</em></span>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<!-- BOOK III — THE ARCHIPELAGO                                          -->
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<section id="book-iii" class="book book--archipelago">
+  <header class="book-header">
+    <span class="book-num">Book III</span>
+    <h2>The Archipelago</h2>
+    <p class="book-ms">Kepulauan</p>
+  </header>
+  <p class="passage">
+    The land itself is a scatter of islands and shores. From the gleaming south
+    to the windward east and the great isle of Borneo, each state keeps its own
+    count of the departed.
+  </p>
+  <div class="archi-stage">
+    <div class="regions-river" id="regions-river"></div>
+    <div class="states-grid" id="states-grid"></div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<!-- BOOK XI (b) — THE DESCENT (interactive)                              -->
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<section id="book-xi-b" class="book book--descent">
+  <header class="book-header">
+    <span class="book-num">Book XI</span>
+    <h2>The Descent</h2>
+    <p class="book-ms">Turun ke Alam Bawah</p>
+  </header>
+  <p class="passage">
+    Now you stand at the edge. Pour an offering into the trench — choose a
+    fate, a place, an age — and summon the dead. They will rise, one by one,
+    and tell you only this: <em>who they were, and what took them.</em>
+  </p>
+
+  <form id="descent-form" class="descent-form">
+    <div class="field">
+      <label for="f-cause">Cause <span class="ms">/ Sebab</span></label>
+      <select id="f-cause" name="cause"><option value="">— any —</option></select>
+    </div>
+    <div class="field">
+      <label for="f-state">State <span class="ms">/ Negeri</span></label>
+      <select id="f-state" name="state"><option value="">— any —</option></select>
+    </div>
+    <div class="field">
+      <label for="f-ethnicity">Ethnicity <span class="ms">/ Etnik</span></label>
+      <select id="f-ethnicity" name="ethnicity"><option value="">— any —</option></select>
+    </div>
+    <div class="field">
+      <label for="f-gender">Gender <span class="ms">/ Jantina</span></label>
+      <select id="f-gender" name="gender">
+        <option value="">— any —</option>
+        <option value="male">Male / Lelaki</option>
+        <option value="female">Female / Perempuan</option>
+      </select>
+    </div>
+    <div class="field field--age">
+      <label>Age between <span class="ms">/ Umur</span></label>
+      <div class="age-pair">
+        <input type="number" id="f-age-min" name="age_min" min="0" max="120" placeholder="0">
+        <span>and</span>
+        <input type="number" id="f-age-max" name="age_max" min="0" max="120" placeholder="120">
+      </div>
+    </div>
+    <div class="field field--submit">
+      <button type="submit" id="summon-btn">Pour the offering <span class="arrow">▾</span></button>
+    </div>
+  </form>
+
+  <div class="souls-well" id="souls-well" aria-live="polite">
+    <p class="souls-empty">The trench is dry. Pour an offering to summon the dead.</p>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<!-- BOOK XXIII — THE RETURN                                              -->
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<section id="book-xxiii" class="book book--return">
+  <header class="book-header">
+    <span class="book-num">Book XXIII</span>
+    <h2>The Return</h2>
+    <p class="book-ms">Kepulangan</p>
+  </header>
+  <div class="return-inner">
+    <p class="passage">
+      And at last he came home, alone with what the dead had told him.
+    </p>
+    <p class="closing">
+      The voyage is done. Behind us lies the whole catalogue — heart and breath,
+      the long shadow, the sudden road, the pestilence that crossed the sea.
+      Each number here was a name; each name, a life that loved and was loved,
+      that laboured and rested, that set out from its own Ithaka and made, at
+      last, the only crossing all voyagers make.
+    </p>
+    <p class="closing-ms">
+      Pelayaran tamat. Setiap nombor di sini pernah menjadi nama;
+      setiap nama, sebuah kehidupan yang dicintai.
+    </p>
+    <blockquote class="homer">
+      <p>"Tell me, Muse, of the man of many turns…"</p>
+      <cite>— Homer, <em>Odyssey</em>, I.1</cite>
+    </blockquote>
+    <p class="dedication">
+      Dedicated, with respect, to the <span id="return-total">{{ overview.total }}</span> Malaysians
+      remembered in this catalogue.
+    </p>
+    <p class="source-note">
+      Data: Malaysian cause-of-death records (n = {{ overview.total }}).
+      Anonymised; presented here in the spirit of remembrance, not surveillance.
+    </p>
+    <p class="back-to-top"><a href="#book-i">↑ Return to the invocation</a></p>
+  </div>
+</section>
+
+</main>
+
+<footer class="colophon">
+  <p>NEKYIA — a catalogue of souls, after Homer. Built as an act of data + reverence.</p>
+</footer>
+
+<script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,10 @@
+# Local virtualenv — never deploy this (huge, and platform-specific wheels)
+.venv/
+
+# Python bytecode caches
+__pycache__/
+*.pyc
+
+# Local-only artefacts
+*.log
+.DS_Store

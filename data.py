@@ -1,21 +1,25 @@
 """
-NEKYIA — data layer.
+NEKYIA — data layer (runtime).
 
-Loads the parquet once at startup and precomputes every aggregation the web app
-needs, so the API endpoints stay instant. Also provides soul-sampling for the
-interactive "Descent" book.
+Reads precomputed cache files produced by `precompute.py` — no pandas or
+pyarrow needed at runtime. The Catalogue class keeps the same public API as
+the original pandas-backed implementation, so the Flask app is unchanged.
+
+Cache files (committed in data_cache/):
+  - aggregations.json   every precomputed view the API serves (~20 KB)
+  - souls.npz           748,934 rows as compact int arrays (~1 MB)
 """
 from __future__ import annotations
 
 import json
-import math
 import random
 from functools import lru_cache
 from pathlib import Path
 
-import pandas as pd
+import numpy as np
 
-DATA_PATH = Path(__file__).parent / "cod-data.parquet"
+CACHE_DIR = Path(__file__).parent / "data_cache"
+DATA_PATH = Path(__file__).parent / "cod-data.parquet"  # source of truth
 
 # ---------------------------------------------------------------------------
 # Vocabulary — bilingual labelling & curatorial groupings.
@@ -213,184 +217,51 @@ REGION_LABEL = {
 
 
 # ---------------------------------------------------------------------------
-# Loading & precomputation
+# Loading — reads the precomputed cache (no pandas / pyarrow at runtime).
 # ---------------------------------------------------------------------------
 
 class Catalogue:
-    """Holds the loaded dataframe and every precomputed view."""
+    """Holds the precomputed views and the compact soul-pool for sampling."""
 
-    def __init__(self, path: Path = DATA_PATH) -> None:
-        self.df = pd.read_parquet(path)
-        self.df["cause_pretty"] = self.df["sebab_kematian"].map(_pretty_cause)
-        self.df["fate"] = self.df["sebab_kematian"].map(
-            lambda s: FATE_OF.get(s.strip().strip('"'), "dawn")
-        )
-        # age bins used across several books
-        self.df["age_bin"] = pd.cut(
-            self.df["umur"],
-            bins=[-1, 0, 4, 14, 24, 44, 64, 200],
-            labels=["<1", "1–4", "5–14", "15–24", "25–44", "45–64", "65+"],
-        )
+    def __init__(self) -> None:
+        agg = json.loads((CACHE_DIR / "aggregations.json").read_text(encoding="utf-8"))
 
-        self.total = int(len(self.df))
-        self._compute()
+        # Precomputed views — served straight back by the API.
+        self.total: int = agg["total"]
+        self.overview = agg["overview"]
+        self.fates = agg["fates"]
+        self.causes = agg["causes"]
+        self.age_single = agg["age_single"]
+        self.age_binned = agg["age_binned"]
+        self.age_by_gender = agg["age_by_gender"]
+        self.states = agg["states"]
+        self.regions = agg["regions"]
+        self.ethnicities = agg["ethnicities"]
+        self.infant: int = agg["infant"]
+        self.children_5_14: int = agg["children_5_14"]
+        self.young_adults: int = agg["young_adults"]
+        self.elders: int = agg["elders"]
+        self.centenarians: int = agg["centenarians"]
+        self.transport_peak_age: int = agg["transport_peak_age"]
+        self.transport_young: int = agg["transport_young"]
+        self.self_harm_total: int = agg["self_harm_total"]
+        self.self_harm_male: int = agg["self_harm_male"]
+        self.self_harm_peak_age: int = agg["self_harm_peak_age"]
 
-    # -- precomputed views -------------------------------------------------
-    def _compute(self) -> None:
-        d = self.df
-
-        # Overall
-        self.overview = {
-            "total": self.total,
-            "male": int((d["jantina"] == "Lelaki").sum()),
-            "female": int((d["jantina"] == "Perempuan").sum()),
-            "median_age": float(d["umur"].median()),
-            "mean_age": round(float(d["umur"].mean()), 1),
-            "oldest": int(d["umur"].max()),
-            "youngest_recorded": 0,
-            "n_causes": int(d["sebab_kematian"].nunique()),
-            "n_states": int(d["negeri"].nunique()),
-            "n_districts": int(d["daerah"].nunique()),
-        }
-
-        # Fates (the seven archetypal groupings)
-        self.fates = self._fates()
-
-        # Top causes (full ranked list)
-        vc = d["cause_pretty"].value_counts()
-        self.causes = [
-            {"cause": k, "count": int(v), "pct": round(v / self.total * 100, 2)}
-            for k, v in vc.items()
-        ]
-
-        # Age voyage — single-year and binned
-        self.age_single = [
-            {"age": int(a), "count": int(c)}
-            for a, c in d["umur"].value_counts().sort_index().items()
-        ]
-        binned = d["age_bin"].value_counts().sort_index()
-        self.age_binned = [
-            {"bin": str(b), "count": int(c)} for b, c in binned.items()
-        ]
-
-        # Age by gender (for the voyage chart overlay)
-        ag = (
-            d.groupby(["umur", "jantina"], observed=True)
-            .size()
-            .unstack(fill_value=0)
-            .sort_index()
-        )
-        self.age_by_gender = [
-            {
-                "age": int(a),
-                "male": int(row.get("Lelaki", 0)),
-                "female": int(row.get("Perempuan", 0)),
-            }
-            for a, row in ag.iterrows()
-        ]
-
-        # Archipelago — states with region, plus a sample of districts
-        st = d["negeri"].value_counts()
-        self.states = []
-        for state, count in st.items():
-            sub = d[d["negeri"] == state]
-            top_districts = (
-                sub["daerah"]
-                .value_counts()
-                .head(6)
-                .items()
-            )
-            self.states.append(
-                {
-                    "state": state,
-                    "region": REGION_OF.get(state, "—"),
-                    "count": int(count),
-                    "pct": round(count / self.total * 100, 2),
-                    "top_districts": [
-                        {"district": dk, "count": int(dv)} for dk, dv in top_districts
-                    ],
-                }
-            )
-        # region rollup
-        self.regions = {}
-        for state in self.states:
-            r = state["region"]
-            self.regions.setdefault(r, 0)
-            self.regions[r] += state["count"]
-
-        # Ethnicities
-        et = d["etnik"].value_counts()
-        self.ethnicities = [
-            {"ethnicity": k, "count": int(v), "pct": round(v / self.total * 100, 2)}
-            for k, v in et.items()
-        ]
-
-        # Specific poignant cross-tabs for the narrative
-        self.infant = int((d["umur"] < 1).sum())
-        self.children_5_14 = int(((d["umur"] >= 5) & (d["umur"] <= 14)).sum())
-        self.young_adults = int(((d["umur"] >= 15) & (d["umur"] <= 24)).sum())
-        self.elders = int((d["umur"] >= 65).sum())
-        self.centenarians = int((d["umur"] >= 95).sum())
-
-        # Transport accidents peak age
-        ta = d[d["sebab_kematian"].str.contains("Transport Accidents", na=False)]
-        if len(ta):
-            self.transport_peak_age = int(ta["umur"].mode().iloc[0])
-            self.transport_young = int(
-                ((ta["umur"] >= 15) & (ta["umur"] <= 34)).sum()
-            )
-        else:
-            self.transport_peak_age, self.transport_young = 0, 0
-
-        # Self-harm
-        sh = d[d["sebab_kematian"].str.contains("Intentional Self-Harm", na=False)]
-        self.self_harm_total = int(len(sh))
-        self.self_harm_male = int((sh["jantina"] == "Lelaki").sum())
-        self.self_harm_peak_age = (
-            int(sh["umur"].mode().iloc[0]) if len(sh) else 0
-        )
-
-    def _fates(self) -> list[dict]:
-        d = self.df
-        out = []
-        for key, meta in FATE_META.items():
-            sub = d[d["fate"] == key]
-            count = int(len(sub))
-            if count == 0:
-                continue
-            top = (
-                sub["cause_pretty"]
-                .value_counts()
-                .head(3)
-                .items()
-            )
-            out.append(
-                {
-                    "key": key,
-                    "label": meta["label"],
-                    "ms": meta["ms"],
-                    "color": meta["color"],
-                    "glyph": meta["glyph"],
-                    "odyssey": meta["odyssey"],
-                    "count": count,
-                    "pct": round(count / self.total * 100, 2),
-                    "median_age": (
-                        round(float(sub["umur"].median()), 1) if count else 0
-                    ),
-                    "top_causes": [
-                        {"cause": k, "count": int(v)} for k, v in top
-                    ],
-                }
-            )
-        out.sort(key=lambda x: x["count"], reverse=True)
-        return out
+        # Soul-pool — integer arrays for the interactive Descent endpoint.
+        npz = np.load(CACHE_DIR / "souls.npz", allow_pickle=False)
+        self._age = npz["age"]
+        self._gender = npz["gender"]
+        self._state = npz["state"]
+        self._district = npz["district"]
+        self._ethnicity = npz["ethnicity"]
+        self._cause = npz["cause"]
+        self._fate = npz["fate"]
+        self._raw_cause = npz["raw_cause"]
+        vocab = json.loads(str(npz["vocab"]))
+        self._vocab = vocab
 
     # -- interactive soul sampling ----------------------------------------
-    @lru_cache(maxsize=1)
-    def _indexed(self) -> tuple[pd.DataFrame, dict]:
-        """Return df plus an index lookup for fast filtering."""
-        return self.df, {}
-
     def sample_souls(
         self,
         cause: str | None = None,
@@ -407,54 +278,39 @@ class Catalogue:
         Each soul is one real row from the catalogue, but presented as a
         mythic persona rather than raw data — to keep the experience
         respectful, no free-text identifiers exist in the source anyway.
+
+        Reproducibility note: this mirrors the original pandas implementation
+        exactly. We build a boolean mask over all rows, materialise the
+        filtered positions, then `random.Random(seed).sample(those positions,
+        n)` — same RNG, same positional sampling, same row order.
         """
-        d = self.df
-        mask = pd.Series(True, index=d.index)
+        mask = np.ones(len(self._age), dtype=bool)
         if cause:
-            mask &= d["cause_pretty"] == cause
+            mask &= self._cause == self._cause_lookup(cause, "cause")
         if state:
-            mask &= d["negeri"] == state
+            mask &= self._state == self._state_lookup(state)
         if ethnicity:
-            mask &= d["etnik"] == ethnicity
+            mask &= self._ethnicity == self._eth_lookup(ethnicity)
         if gender:
             mapped = {"male": "Lelaki", "female": "Perempuan"}.get(gender, gender)
-            mask &= d["jantina"] == mapped
+            mask &= self._gender == self._gender_lookup(mapped)
         if age_min is not None:
-            mask &= d["umur"] >= age_min
+            mask &= self._age >= age_min
         if age_max is not None:
-            mask &= d["umur"] <= age_max
+            mask &= self._age <= age_max
 
-        sub = d[mask]
-        if len(sub) == 0:
+        positions = np.nonzero(mask)[0]
+        if len(positions) == 0:
             return []
 
         rng = random.Random(seed)
-        n = min(n, len(sub))
-        # sample positional indices via the rng for reproducibility
-        positions = sorted(rng.sample(range(len(sub)), n))
-        sampled = sub.iloc[positions]
+        n = min(n, len(positions))
+        # Sample positional indices within the filtered subset, sorted as the
+        # original did (so the returned order is ascending by row position).
+        chosen = sorted(rng.sample(range(len(positions)), n))
+        idx = positions[chosen]
 
-        souls = []
-        for _, row in sampled.iterrows():
-            fate_key = FATE_OF.get(
-                str(row["sebab_kematian"]).strip().strip('"'), "dawn"
-            )
-            souls.append(
-                {
-                    "age": int(row["umur"]),
-                    "gender": "male" if row["jantina"] == "Lelaki" else "female",
-                    "gender_ms": row["jantina"],
-                    "state": row["negeri"],
-                    "district": row["daerah"],
-                    "ethnicity": row["etnik"],
-                    "cause": row["cause_pretty"],
-                    "fate": fate_key,
-                    "fate_label": FATE_META[fate_key]["label"],
-                    "fate_glyph": FATE_META[fate_key]["glyph"],
-                    "fate_color": FATE_META[fate_key]["color"],
-                }
-            )
-        return souls
+        return [self._soul_at(i) for i in idx]
 
     # -- introspection helpers used by the API/UI -------------------------
     def cause_list(self) -> list[str]:
@@ -468,6 +324,43 @@ class Catalogue:
 
     def region_label(self, key: str) -> tuple[str, str]:
         return REGION_LABEL.get(key, (key, key))
+
+    # -- private: build a soul dict from a flat row index -----------------
+    def _soul_at(self, i: int) -> dict:
+        v = self._vocab
+        gender_ms = v["gender"][int(self._gender[i])]
+        raw_cause = v["raw_cause"][int(self._raw_cause[i])]
+        fate_key = FATE_OF.get(raw_cause.strip().strip('"'), "dawn")
+        return {
+            "age": int(self._age[i]),
+            "gender": "male" if gender_ms == "Lelaki" else "female",
+            "gender_ms": gender_ms,
+            "state": v["state"][int(self._state[i])],
+            "district": v["district"][int(self._district[i])],
+            "ethnicity": v["ethnicity"][int(self._ethnicity[i])],
+            "cause": v["cause"][int(self._cause[i])],
+            "fate": fate_key,
+            "fate_label": FATE_META[fate_key]["label"],
+            "fate_glyph": FATE_META[fate_key]["glyph"],
+            "fate_color": FATE_META[fate_key]["color"],
+        }
+
+    # -- private: vocab lookup caches -------------------------------------
+    @lru_cache(maxsize=None)
+    def _cause_lookup(self, value: str, column: str) -> int:
+        return self._vocab[column].index(value)
+
+    @lru_cache(maxsize=None)
+    def _state_lookup(self, value: str) -> int:
+        return self._vocab["state"].index(value)
+
+    @lru_cache(maxsize=None)
+    def _eth_lookup(self, value: str) -> int:
+        return self._vocab["ethnicity"].index(value)
+
+    @lru_cache(maxsize=None)
+    def _gender_lookup(self, value: str) -> int:
+        return self._vocab["gender"].index(value)
 
 
 # Module-level singleton, loaded lazily on first access.

@@ -16,6 +16,7 @@ env/
 # Editor / OS
 .vscode/
 .idea/
+.zcode/
 *.swp
 .DS_Store
 Thumbs.db

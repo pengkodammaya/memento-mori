@@ -53,23 +53,36 @@ python app.py
 
 Then open **http://127.0.0.1:5000**.
 
-First run loads the parquet once (~2–4 s); subsequent requests are instant
-because every aggregation is precomputed at startup.
+First run loads the cache once (~2 s); subsequent requests are instant.
 
-### Dependencies
+### Architecture: precomputed cache
 
-Only three, all already installed in the venv:
+The app reads a **precomputed cache** (`data_cache/`) rather than loading
+the parquet at runtime. This keeps memory and cold-start time low — crucial
+for serverless/free-tier hosting.
+
+- `data_cache/aggregations.json` — every precomputed view the API serves (~20 KB)
+- `data_cache/souls.npz` — 748,934 rows as compact int arrays (~1 MB)
+
+**Runtime dependencies** (installed in production):
 
 - `flask`   — web framework
+- `gunicorn` — production WSGI server
+- `numpy`   — soul-pool for the interactive Descent endpoint
+
+**Precompute dependencies** (only needed locally to regenerate the cache):
+
 - `pandas`  — data wrangling
 - `pyarrow` — parquet engine
+- `numpy`   — array serialization
 
-To recreate the venv from scratch:
+To recreate the venv and regenerate the cache from scratch:
 
 ```bash
 python -m venv .venv
 source .venv/Scripts/activate
-pip install flask pandas pyarrow
+pip install flask pandas pyarrow numpy
+python precompute.py     # regenerates data_cache/
 ```
 
 ---
@@ -79,7 +92,11 @@ pip install flask pandas pyarrow
 ```
 cod/
 ├── cod-data.parquet        # the source data (748,934 rows × 6 cols)
-├── data.py                 # data layer: loads parquet, precomputes, samples souls
+├── data_cache/             # precomputed cache (committed; runtime reads this)
+│   ├── aggregations.json   #   every precomputed view (~20 KB)
+│   └── souls.npz           #   748,934 rows as int arrays (~1 MB)
+├── precompute.py           # regenerate data_cache/ from the parquet (local only)
+├── data.py                 # runtime data layer: reads cache, samples souls
 ├── app.py                  # Flask app: one page + JSON API
 ├── templates/
 │   └── index.html          # the single-page voyage (7 books)

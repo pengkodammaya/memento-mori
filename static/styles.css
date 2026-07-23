@@ -906,3 +906,53 @@ h1, h2, h3 { font-family: var(--serif); font-weight: 400; margin: 0; }
   }
   html { scroll-behavior: auto; }
 }
+
+/* ░░░ Sound toggle — fixed bottom-right ░░░ */
+.sound-toggle {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  z-index: 100;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  border: 1px solid var(--gold-dim);
+  background: rgba(10, 18, 32, 0.7);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  color: var(--gold-bright);
+  font-family: var(--serif);
+  font-size: 1.1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.75;
+  transition: opacity 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+.sound-toggle:hover,
+.sound-toggle:focus-visible {
+  opacity: 1;
+  border-color: var(--gold-bright);
+  box-shadow: 0 0 18px rgba(201,169,97,0.25);
+  outline: none;
+}
+.sound-toggle .sound-icon { display: inline; }
+.sound-toggle .sound-off  { display: none; margin-left: -0.1em; }
+/* Off (default/muted) state — show the muted glyph, dim the note. */
+.sound-toggle:not(.is-on) .sound-icon { color: var(--gold-dim); opacity: 0.5; }
+.sound-toggle:not(.is-on) .sound-off  { display: inline; }
+
+/* On state — a soft pulsing glow to show sound is alive. */
+.sound-toggle.is-on {
+  opacity: 0.95;
+  border-color: var(--gold);
+  animation: sound-pulse 3.5s ease-in-out infinite;
+}
+@keyframes sound-pulse {
+  0%, 100% { box-shadow: 0 0 10px rgba(201,169,97,0.15); }
+  50%      { box-shadow: 0 0 22px rgba(201,169,97,0.4); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sound-toggle.is-on { animation: none; }
+}

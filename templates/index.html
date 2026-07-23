@@ -254,6 +254,13 @@
   <p>NEKYIA — a catalogue of souls, after Homer. Built as an act of data + reverence.</p>
 </footer>
 
+<!-- ░░░ Sound toggle — fixed, bottom-right ░░░ -->
+<button id="sound-toggle" class="sound-toggle" aria-pressed="false" aria-label="Toggle atmospheric sound" title="Enable sound">
+  <span class="sound-icon" aria-hidden="true">♪</span>
+  <span class="sound-off" aria-hidden="true">✕</span>
+</button>
+
+<script src="{{ url_for('static', filename='sounds.js') }}"></script>
 <script src="{{ url_for('static', filename='app.js') }}"></script>
 </body>
 </html>

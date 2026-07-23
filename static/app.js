@@ -30,6 +30,10 @@ async function getJSON(url) {
 // Honour reduced-motion globally.
 const REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+// Ambient sound toggle wiring (defined below). Each call site guards on
+// `sound` existing — safe if sounds.js fails to load for any reason.
+// (sound is a global from sounds.js; declared with var here for clarity.)
+
 // ───────────────────────────────────────────────────────────────────────
 // 1. The invocation counter — count up the grand total
 // ───────────────────────────────────────────────────────────────────────
@@ -254,6 +258,17 @@ function renderFates(fates, total) {
       </div>
     </article>
   `).join('');
+
+  // Each fate chimes on hover — pitched by its rank in the catalogue.
+  // Lower rank (more common) plays a steadier tone; rarer fates ring higher.
+  grid.addEventListener('mouseenter', (e) => {
+    const card = e.target.closest('.fate-card');
+    if (!card || typeof sound === 'undefined') return;
+    const idx = Array.from(grid.children).indexOf(card);
+    // pitch from 0.85 (heaviest fate) up to ~1.4 (rarest)
+    const rate = 0.85 + (idx / Math.max(1, grid.children.length - 1)) * 0.55;
+    sound.play('chime-fate', { rate });
+  }, true);
 }
 
 // ───────────────────────────────────────────────────────────────────────
@@ -389,6 +404,10 @@ function renderSoul(soul, i) {
     <p class="soul-line cause">taken by ${soul.cause}</p>
     <p class="soul-epitaph">— ${epitaphFor(soul.fate)}</p>
   `;
+  // A soft whisper as each soul rises — staggered to match the fade-in.
+  if (typeof sound !== 'undefined') {
+    sound.play('whisper-rise', { delay: i * 120 });
+  }
   return card;
 }
 
@@ -413,6 +432,8 @@ async function initDescent() {
     btn.classList.add('loading');
     const well = $('#souls-well');
     well.innerHTML = `<p class="souls-empty">The souls are rising from the trench…</p>`;
+    // A deep bell tolls as the offering is poured.
+    if (typeof sound !== 'undefined') sound.play('bell-summon');
 
     const params = new URLSearchParams();
     const cause = $('#f-cause').value;       if (cause) params.set('cause', cause);
@@ -462,7 +483,74 @@ function initNavObserver() {
 }
 
 // ───────────────────────────────────────────────────────────────────────
-// 9. Boot the voyage.
+// 9a. Atmospheric sound — unlock on first gesture, run ambient beds,
+//     and fade layers in/out as the visitor descends through the books.
+// ───────────────────────────────────────────────────────────────────────
+function initSound() {
+  if (typeof sound === 'undefined') return;
+
+  // Restore the visitor's last preference. Default to muted unless they've
+  // explicitly opted in — audio should always be a choice.
+  let optedIn = false;
+  try {
+    optedIn = localStorage.getItem('nekyia:sound') === 'on';
+  } catch (e) { /* localStorage may be blocked */ }
+  if (!optedIn) sound.setMuted(true);
+
+  // The toggle button drives everything. First click also serves as the
+  // user gesture that unlocks audio per browser autoplay policy.
+  const toggle = $('#sound-toggle');
+  const syncToggle = () => {
+    if (!toggle) return;
+    toggle.classList.toggle('is-on', !sound.isMuted);
+    toggle.setAttribute('aria-pressed', sound.isMuted ? 'false' : 'true');
+    toggle.title = sound.isMuted ? 'Enable sound' : 'Mute sound';
+  };
+  syncToggle();
+  if (toggle) {
+    toggle.addEventListener('click', () => {
+      sound.unlock();
+      const nowOn = sound.isMuted;
+      sound.setMuted(nowOn); // toggle
+      if (nowOn && !sound.isMuted) {
+        // Just enabled — start the ambient bed if not already running.
+        sound.fadeIn('ambient-drone', 2000);
+      }
+      try { localStorage.setItem('nekyia:sound', nowOn ? 'on' : 'off'); } catch (e) {}
+      syncToggle();
+    });
+  }
+
+  // Ambient layers tied to scroll position.
+  // Sea of Souls — swell layer fades in.
+  const seaObs = new IntersectionObserver((entries, obs) => {
+    for (const e of entries) {
+      if (e.isIntersecting) {
+        if (!sound.isMuted) sound.fadeIn('wave-swell', 3000);
+        obs.disconnect();
+      }
+    }
+  }, { rootMargin: '100px' });
+  const bookV = $('#book-v');
+  if (bookV) seaObs.observe(bookV);
+
+  // The Return — drone fades out, final bell tolls.
+  const returnObs = new IntersectionObserver((entries, obs) => {
+    for (const e of entries) {
+      if (e.isIntersecting) {
+        sound.fadeOut('ambient-drone', 3000);
+        sound.fadeOut('wave-swell', 2000);
+        sound.play('bell-final', { delay: 400 });
+        obs.disconnect();
+      }
+    }
+  }, { rootMargin: '100px' });
+  const bookReturn = $('#book-xxiii');
+  if (bookReturn) returnObs.observe(bookReturn);
+}
+
+// ───────────────────────────────────────────────────────────────────────
+// 9b. Boot the voyage.
 // ───────────────────────────────────────────────────────────────────────
 async function boot() {
   // Background sea — runs immediately.
@@ -507,6 +595,9 @@ async function boot() {
 
   // Descent form.
   await initDescent();
+
+  // Atmospheric sound — toggle, ambient beds, scroll-cued fades.
+  initSound();
 
   // Nav highlight.
   initNavObserver();

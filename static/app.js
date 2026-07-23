@@ -510,8 +510,8 @@ function initSound() {
   if (toggle) {
     toggle.addEventListener('click', () => {
       sound.unlock();
-      const nowOn = sound.isMuted;
-      sound.setMuted(nowOn); // toggle
+      const nowOn = sound.isMuted;     // muted now → this click means "turn on"
+      sound.setMuted(!nowOn);          // mute iff turning off
       if (nowOn && !sound.isMuted) {
         // Just enabled — start the ambient bed if not already running.
         sound.fadeIn('ambient-drone', 2000);

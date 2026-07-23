@@ -1,0 +1,15 @@
+# Render Blueprint — pre-configures the web service on import.
+# When you create the service, Render reads this file.
+predeploy: pip install -r requirements.txt
+services:
+  - type: web
+    name: memento-mori
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app --workers 1 --threads 4 --timeout 120
+    healthCheckPath: /api/overview
+    autoDeploy: true
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.13"

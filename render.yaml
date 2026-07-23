@@ -1,5 +1,6 @@
 # Render Blueprint — pre-configures the web service on import.
 # When you create the service, Render reads this file.
+# Schema: https://render.com/docs/blueprint-spec
 services:
   - type: web
     name: memento-mori

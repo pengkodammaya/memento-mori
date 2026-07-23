@@ -536,6 +536,21 @@ function initSound() {
   const bookV = $('#book-v');
   if (bookV) seaObs.observe(bookV);
 
+  // The Descent — the voyage hushes. Both beds fade out so the only sound
+  // here is the offering: the toll on clicking "Pour the offering" and the
+  // whispers as souls rise. No ambient bed under the ritual.
+  const descentObs = new IntersectionObserver((entries, obs) => {
+    for (const e of entries) {
+      if (e.isIntersecting) {
+        sound.fadeOut('ambient-drone', 3000);
+        sound.fadeOut('wave-swell', 2000);
+        obs.disconnect();
+      }
+    }
+  }, { rootMargin: '100px' });
+  const bookDescent = $('#book-xi-b');
+  if (bookDescent) descentObs.observe(bookDescent);
+
   // The Return — drone fades out, final bell tolls.
   const returnObs = new IntersectionObserver((entries, obs) => {
     for (const e of entries) {

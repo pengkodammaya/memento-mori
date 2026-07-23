@@ -1,6 +1,5 @@
 # Render Blueprint — pre-configures the web service on import.
 # When you create the service, Render reads this file.
-predeploy: pip install -r requirements.txt
 services:
   - type: web
     name: memento-mori

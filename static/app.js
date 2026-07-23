@@ -493,7 +493,9 @@ function initSound() {
   // explicitly opted in — audio should always be a choice.
   let optedIn = false;
   try {
-    optedIn = localStorage.getItem('nekyia:sound') === 'on';
+    // Key bumped (v2) to invalidate stale 'on' values saved under the buggy
+    // toggle that never unmuted — forces everyone back to the muted default.
+    optedIn = localStorage.getItem('nekyia:sound-v2') === 'on';
   } catch (e) { /* localStorage may be blocked */ }
   if (!optedIn) sound.setMuted(true);
 
@@ -516,7 +518,7 @@ function initSound() {
         // Just enabled — start the ambient bed if not already running.
         sound.fadeIn('ambient-drone', 2000);
       }
-      try { localStorage.setItem('nekyia:sound', nowOn ? 'on' : 'off'); } catch (e) {}
+      try { localStorage.setItem('nekyia:sound-v2', nowOn ? 'on' : 'off'); } catch (e) {}
       syncToggle();
     });
   }

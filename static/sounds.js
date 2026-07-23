@@ -17,6 +17,7 @@
 
 // Relative paths — Flask serves /static/ at /static/.
 const SOUND_DIR = '/static/sounds/';
+const SOUND_EXT = '.wav';   // BBC downloads come as WAV; lossless, universal support
 
 // Which clips loop (ambient beds) vs. one-shots.
 const LOOPS = new Set(['ambient-drone', 'wave-swell']);
@@ -70,7 +71,7 @@ class SoundEngine {
   _clip(name) {
     if (this._loadFailed.has(name)) return null;
     if (this._clips.has(name)) return this._clips.get(name);
-    const el = new Audio(SOUND_DIR + name + '.mp3');
+    const el = new Audio(SOUND_DIR + name + SOUND_EXT);
     el.preload = 'auto';
     el.loop = LOOPS.has(name);
     el.volume = VOLUME[name] ?? 0.5;

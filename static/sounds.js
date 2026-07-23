@@ -17,7 +17,7 @@
 
 // Relative paths — Flask serves /static/ at /static/.
 const SOUND_DIR = '/static/sounds/';
-const SOUND_EXT = '.wav';   // BBC downloads come as WAV; lossless, universal support
+const SOUND_EXT = '.mp3';   // smaller payload than WAV; universal browser support
 
 // Which clips loop (ambient beds) vs. one-shots.
 const LOOPS = new Set(['ambient-drone', 'wave-swell']);

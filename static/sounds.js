@@ -27,8 +27,8 @@ const LOOPS = new Set(['ambient-drone', 'wave-swell']);
 // (one per summon / fate hover) the mix gets overwhelming fast. Keep them
 // as a distant tint, not a feature.
 const VOLUME = {
-  'ambient-drone': 0.40,
-  'wave-swell':    0.28,
+  'ambient-drone': 0.22,
+  'wave-swell':    0.20,
   'chime-fate':    0.18,
   'bell-summon':   0.22,
   'whisper-rise':  0.30,

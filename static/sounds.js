@@ -23,13 +23,16 @@ const SOUND_EXT = '.mp3';   // smaller payload than WAV; universal browser suppo
 const LOOPS = new Set(['ambient-drone', 'wave-swell']);
 
 // Default per-clip volumes (mixed relative to each other).
+// Bells deliberately low — a real struck bell is sharp, and at these counts
+// (one per summon / fate hover) the mix gets overwhelming fast. Keep them
+// as a distant tint, not a feature.
 const VOLUME = {
-  'ambient-drone': 0.45,
-  'wave-swell':    0.30,
-  'chime-fate':    0.55,
-  'bell-summon':   0.70,
-  'whisper-rise':  0.35,
-  'bell-final':    0.80,
+  'ambient-drone': 0.40,
+  'wave-swell':    0.28,
+  'chime-fate':    0.18,
+  'bell-summon':   0.22,
+  'whisper-rise':  0.30,
+  'bell-final':    0.28,
 };
 
 class SoundEngine {
